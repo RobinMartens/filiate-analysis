@@ -41,6 +41,10 @@
 
 (define neutral #\space)
 
+;; collect all delimiters into a set
+(define delimiter-list (list ag trunc ins sub testing))
+(define delimiters (foldr (λ(elm s) (set-add s elm)) (set) delimiter-list))
+
 ;; shall put the character provided in between any two characters from the list
 (define (mix-in char l)
   (cond
@@ -58,6 +62,14 @@
 ;; corresponds to substituting a character
 (define (substitute raw template len-raw len-template ht)
   (++ (led (rest raw) (rest template) (-- len-raw) (-- len-template) ht)))
+
+;; conditionally space out stuff
+(define (cond-delim chars prev)
+  (cond
+    [(empty? chars) empty]
+    [else (if (or (set-member? delimiters (first chars)) (set-member? delimiters prev))
+              (cons (first chars) (cond-delim (rest chars) (first chars)))
+              (cons neutral (cons (first chars) (cond-delim (rest chars) (first chars)))))]))
 
 ;; this function shall display the minimum difference between two texts
 ;; (list char?) (list char?) -> (list char?)
@@ -79,9 +91,9 @@
 
 
 (define (lev-diff raw template)
-  (list->string (led-diff (string->list raw) (string->list template)
+  (list->string (cond-delim (led-diff (string->list raw) (string->list template)
                           (string-length raw) (string-length template)
-                          (make-hash))))
+                          (make-hash)) neutral)))
 
 ;; string? string? -> integer
 (define (lev text-a text-b)
@@ -155,9 +167,15 @@
 ;(show-diff "a" "b")
 ;(show-diff "abc" "efg")
 ;(show-diff "abc" "adc")
-;(show-diff "abcde" "abde")
-
-;; conditionally space out stuff
+(show-diff "abcde" "abde")
 
 
-(show-diff "abde" "abcde")
+
+;(cond-delim (string->list "foo"))
+
+;(show-diff "abde" "abcde")
+
+;(show-diff "abcd" "abefghi")
+
+;; do a real-world example
+;(show-diff rec mwd)
