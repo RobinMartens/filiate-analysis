@@ -119,6 +119,48 @@
       [else (cons testing (cons (first raw) (led-comp (rest raw) (rest template)
                                                       (-- len-raw) (-- len-template) ht)))])))
 
+;; introduce the char-diff type
+(define-struct char-diff 
+  (this operation other status)
+  #:transparent)
+
+(define match 'match)
+(define conflict 'conflict)
+
+
+;; method to extract a list from char-diff list
+(define (char-diff->list cl)
+  (cond
+    [(empty? cl) empty]
+    [else (if (equal? (char-diff-status (first cl)) match)
+              (cons (char-diff-this (first cl)) (char-diff->list (rest cl)))
+              (char-diff->list (rest cl)))]))
+
+
+;; need a new mix-in type
+
+
+
+(define (led-struct raw template len-raw len-template ht chard)
+  (let ([min-led (led raw template len-raw len-template ht)])
+    (cond
+      [(empty? raw) (mix-in ins template)]
+      [(empty? template) (mix-in trunc raw)]
+      [(equal? (first raw) (first template)) (cons (char-diff (first raw) neutral (first template) match) (led-struct (rest raw) (rest template) 
+                                                                                  (-- len-raw) (-- len-template) ht chard))]
+      [(equal? (truncate raw template len-raw len-template ht) min-led) (cons (char-diff neutral trunc (first template) conflict) (led-struct (rest raw) template
+                                                                                              (-- len-raw) len-template ht chard))]
+      [(equal? (insert raw template len-raw len-template ht) min-led) (cons (char-diff neutral ins (first template) conflict) (led-struct raw (rest template)
+                                                                                                            len-raw (-- len-template) ht chard))]
+      [(equal? (substitute raw template len-raw len-template ht) min-led) (cons (char-diff (first raw) sub (first template) conflict) (led-struct (rest raw) (rest template)
+                                                                                                                (-- len-raw) (-- len-template) ht chard))])))
+;; wrapper for strings
+(define (lev-struct raw template)
+  (let ([raw-struct (map (λ(e) (char-diff e #\null neutral match)) (string->list raw))]) 
+    (led-struct (char-diff->list raw-struct) (string->list template)
+                (length raw-struct) (string-length template)
+                (make-hash) raw-struct)))
+
 ;; wrapper for strings
 (define (lev-comp raw template)
   (led-comp (string->list raw) (string->list template)
@@ -198,7 +240,13 @@
 (define (pack-lev-comp data)
   (map (λ(l) (list->string l)) data))
 
+(define (lev-compare text1 text2)
+  (pack-lev-comp (lev-comp text1 text2)))
+
 (provide find-diff)
 (provide lev-comp)
+(provide lev-compare)
 
-(pack-lev-comp my-data)
+;(pack-lev-comp my-data)
+
+(define foo (lev-struct (source "received" 1) (source "mawangdui-yi" 1)))

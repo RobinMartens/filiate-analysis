@@ -61,37 +61,22 @@
 
 
 ;; make a list of all parallel passages
+#|
 (define the-chapters (list 1 5 11 16 20 25 38 42 48 56))
 
 (define (compare-all chapters text1 text2)
   (foldr (λ(n base) (cons (compare n text1 text2) base)) empty chapters))
 
+(define stuff (map (λ(n) (lev-compare (source "received" n)
+                        (source "mawangdui-yi" n))) the-chapters))
+|#
 
-;; work with the notion of a comparator procedure
 
-;; (compare 1 "received" "mawangdui-yi")
-;;(compare-all the-chapters "received" "mawangdui-yi")
+;; introduce the char-diff type
+(define-struct char-diff 
+  (template other operation status))
 
-;(find-diff (source "received" 1) (source "mawangdui-yi" 1))
 
-;; refactor the list
-(define (refactor one diff two)
-  (cond
-    [(empty? one) empty]
-    [(empty? diff) empty]
-    [(empty? two) empty]
-    [else (cons (list->string (list (first one) (first diff) (first two) #\newline)) (refactor (rest one) (rest diff) (rest two)))]))
 
-(define (refactor-bulk bulk)
-  (refactor (string->list (first bulk)) (string->list (second bulk)) (string->list (third bulk))))
-
-(define foo (find-diff (source "received" 1) (source "mawangdui-yi" 1)))
-
-(define data (refactor-bulk (find-diff (source "received" 1) (source "mawangdui-yi" 1))))
-
-;; write it to file somehow
-;(display-lines-to-file data "moredata.txt")
-
-(lev-comp (source "received" 1) (source "mawangdui-yi" 1))
 
 
