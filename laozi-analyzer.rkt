@@ -72,3 +72,24 @@
 ;; (compare 1 "received" "mawangdui-yi")
 ;;(compare-all the-chapters "received" "mawangdui-yi")
 
+;(find-diff (source "received" 1) (source "mawangdui-yi" 1))
+
+;; refactor the list
+(define (refactor one diff two)
+  (cond
+    [(empty? one) empty]
+    [(empty? diff) empty]
+    [(empty? two) empty]
+    [else (cons (list->string (list (first one) (first diff) (first two) #\newline)) (refactor (rest one) (rest diff) (rest two)))]))
+
+(define (refactor-bulk bulk)
+  (refactor (string->list (first bulk)) (string->list (second bulk)) (string->list (third bulk))))
+
+(define foo (find-diff (source "received" 1) (source "mawangdui-yi" 1)))
+
+(display (refactor-bulk (find-diff (source "received" 1) (source "mawangdui-yi" 1))))
+
+
+
+
+

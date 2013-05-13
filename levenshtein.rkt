@@ -32,6 +32,7 @@
     
 
 ;; define a few constants that indicate what is happening to the text
+
 (define ag #\*)
 (define trunc #\-)
 (define ins #\+)
@@ -40,6 +41,18 @@
 (define testing #\$)
 
 (define neutral #\space)
+
+
+#|
+(define ag #\同)
+(define trunc #\減)
+(define ins #\加)
+(define sub #\變)
+
+(define testing #\$)
+
+(define neutral #\空)
+|#
 
 ;; collect all delimiters into a set
 (define delimiter-list (list ag trunc ins sub testing))
@@ -151,34 +164,9 @@
 (define rec (source "received" 1))
 (define mwd (source "mawangdui-yi" 1))
 
-;;(lev-diff rec mwd)
+(define (find-diff template raw)
+  (list (list->string (mix-in neutral (string->list raw))) 
+        (lev-diff raw template) 
+        (list->string (mix-in neutral (string->list template)))))
 
-;;(mix-in #\x (string->list "hello"))
-
-;;(lev-diff "foo" "")
-;;(lev-diff "" "foo")
-
-(define (show-diff template raw)
-  (display (list (lev-diff raw template) "\n" (list->string (mix-in neutral (string->list template))))))
-
-;(display (show-diff "foo" ""))
-
-;;(show-diff "foo" "bar")
-;(show-diff "a" "b")
-;(show-diff "abc" "efg")
-;(show-diff "abc" "adc")
-;(show-diff "abcde" "abde")
-
-
-
-;(cond-delim (string->list "foo"))
-
-;(show-diff "abde" "abcde")
-
-;(show-diff "abcd" "abefghi")
-
-;; do a real-world example
-;(show-diff rec mwd)
-
-(show-diff rec mwd)
-
+(provide find-diff)
