@@ -83,7 +83,11 @@
 
 
 (define all-raw
-  (hash "received" received-hash))
+  (hash "received" received-hash
+        "mawangdui-jia" mawangdui-jia-hash
+        "mawangdui-yi" mawangdui-yi-hash
+        "heshanggong" he-shang-gong-hash
+        "wangbi" wang-bi-hash))
 
 
  ;; clean the text

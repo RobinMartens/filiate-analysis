@@ -41,11 +41,6 @@
 (define mwd-yi-1 "《馬王堆·老子乙道經》:	道可道也,□□□□□□□□恆名也。無名萬物之始也;有名萬物之母也。故恆無欲也,□□□□;恆又欲也,以觀其所噭。兩者同出,異名同胃,玄之又玄,眾眇之門。")
 
 
-;; shortcut for uncleaned texts
-(define (compare a b)
-  (lev (remove-punctuation a) (remove-punctuation b)))
-
-
 ;; account for similar characters
 
 
@@ -54,5 +49,26 @@
 ;(diff-trivial (remove-punctuation received1) 
  ;     (remove-punctuation hsg1))
 
+;; trivially compare two texts
+(define (compare chapter text1 text2)
+  (let ([source1 (source text1 chapter)]
+        [source2 (source text2 chapter)])
+    (list source1
+          (diff-trivial source1 source2)
+          source2)))
 
+
+
+
+;; make a list of all parallel passages
+(define the-chapters (list 1 5 11 16 20 25 38 42 48 56))
+
+(define (compare-all chapters text1 text2)
+  (foldr (λ(n base) (cons (compare n text1 text2) base)) empty chapters))
+
+
+;; work with the notion of a comparator procedure
+
+;; (compare 1 "received" "mawangdui-yi")
+;;(compare-all the-chapters "received" "mawangdui-yi")
 

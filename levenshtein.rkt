@@ -14,6 +14,11 @@
 ;; now compute the LED
 ;; (list char?) (list char?) -> integer
 (define (led a b len-a len-b ht)
+  (begin 
+   ; (display a)
+    ;(display b)
+    ;(display len-a)
+    ;(display len-b)
   (let ([key (append a (cons #\0 b))]) 
     (cond
       [(zero? (min len-a len-b)) (max len-a len-b)] 
@@ -23,55 +28,60 @@
                                 (+ (led (rest a) (rest b) (-- len-a) (-- len-b) ht)
                                    (if (equal? (first a) (first b)) 0 1)))])
             (begin (hash-set! ht key cur-led)
-                   cur-led))])))
+                   cur-led))]))))
     
 
-;; make a function that displays the differences
+;; define a few constants that indicate what is happening to the text
+(define ag #\*)
+(define trunc #\-)
+(define ins #\+)
+(define sub #\%)
+
+(define testing #\$)
+
+(define neutral #\space)
+
+;; shall put the character provided in between any two characters from the list
+(define (mix-in char l)
+  (cond
+    [(empty? l) empty]
+    [else (cons char (cons (first l)(mix-in char (rest l))))]))
+
+;; corresponds to removing the first character
+(define (truncate raw template len-raw len-template ht)
+  (++ (led (rest raw) template (-- len-raw) len-template ht)))
+
+;; corresponds to adding a chracters
+(define (insert raw template len-raw len-template ht)
+  (++ (led raw (rest template) len-raw (-- len-template) ht)))
+
+;; corresponds to substituting a character
+(define (substitute raw template len-raw len-template ht)
+  (++ (led (rest raw) (rest template) (-- len-raw) (-- len-template) ht)))
+
+;; this function shall display the minimum difference between two texts
 ;; (list char?) (list char?) -> (list char?)
-(define (adapt a b len-a len-b ht)
-  (cond [(empty? a) b]
-        [(empty? b) a]
-        [else 
-         (let ([delete (++ (led (rest a) b (-- len-a) len-b ht))]
-               [insert (++ (led a (rest b) len-a (-- len-b) ht))]
-               [substitute (+ (led (rest a) (rest b) (-- len-a) (-- len-b) ht)
-                              (if (equal? (first a) (first b)) 0 1))])
-           (cond
-             [(equal? delete (led a b len-a len-b ht)) (cons #\- (adapt a 
-                                                                        (rest b)
-                                                                        len-a
-                                                                        (-- len-b)
-                                                                        ht))]
-             [(equal? insert (led a b len-a len-b ht)) (cons #\+ (adapt (rest a) 
-                                                                         b
-                                                                         (-- len-a)
-                                                                         len-b
-                                                                         ht))]
-             [(equal? substitute 0) (cons (first a) (cons #\* (adapt 
-                                                                            (rest a) 
-                                                                            (rest b)
-                                                                            (-- len-a)
-                                                                            (-- len-b)
-                                                                            ht)))]
-             [(equal? substitute (led a b len-a len-b ht)) (cons #\' (cons (first a) (adapt 
-                                                                            (rest a) 
-                                                                            (rest b)
-                                                                            (-- len-a)
-                                                                            (-- len-b)
-                                                                            ht)))]))]))
-    
-(define (diff s1 s2)
-  (list->string (adapt (string->list s1) 
-                       (string->list s2) 
-                       (string-length s1) 
-                       (string-length s2) 
-                       (make-hash))))
+(define (led-diff raw template len-raw len-template ht)
+  (let ([min-led (led raw template len-raw len-template ht)])
+    (cond
+      [(empty? raw) (mix-in ins template)]
+      [(empty? template) (mix-in trunc raw)]
+      [(equal? (first raw) (first template)) (cons (first raw) (led-diff (rest raw) (rest template) 
+                                                                                  (-- len-raw) (-- len-template) ht))]
+      [(equal? (truncate raw template len-raw len-template ht) min-led) (cons trunc (led-diff (rest raw) template
+                                                                                              (-- len-raw) len-template ht))]
+      [(equal? (insert raw template len-raw len-template ht) min-led) (cons ins (cons (first template) (led-diff raw (rest template)
+                                                                                                            len-raw (-- len-template) ht)))]
+      [(equal? (substitute raw template len-raw len-template ht) min-led) (cons sub (cons (first raw) (led-diff (rest raw) (rest template)
+                                                                                                                (-- len-raw) (-- len-template) ht)))]                                                                
+      [else (cons testing (cons (first raw) (led-diff (rest raw) (rest template)
+                                                      (-- len-raw) (-- len-template) ht)))])))
 
 
-
-
-
-
+(define (lev-diff raw template)
+  (list->string (led-diff (string->list raw) (string->list template)
+                          (string-length raw) (string-length template)
+                          (make-hash))))
 
 ;; string? string? -> integer
 (define (lev text-a text-b)
@@ -120,5 +130,34 @@
 (provide lev)
 
 ;; export diff
-(provide diff)
 (provide diff-trivial)
+(provide lev-diff)
+
+
+(require "source.rkt")
+
+(define rec (source "received" 1))
+(define mwd (source "mawangdui-yi" 1))
+
+;;(lev-diff rec mwd)
+
+;;(mix-in #\x (string->list "hello"))
+
+;;(lev-diff "foo" "")
+;;(lev-diff "" "foo")
+
+(define (show-diff template raw)
+  (display (list (lev-diff raw template) "\n" (list->string (mix-in neutral (string->list template))))))
+
+;(display (show-diff "foo" ""))
+
+;;(show-diff "foo" "bar")
+;(show-diff "a" "b")
+;(show-diff "abc" "efg")
+;(show-diff "abc" "adc")
+;(show-diff "abcde" "abde")
+
+;; conditionally space out stuff
+
+
+(show-diff "abde" "abcde")
