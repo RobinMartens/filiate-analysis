@@ -102,6 +102,29 @@
       [else (cons testing (cons (first raw) (led-diff (rest raw) (rest template)
                                                       (-- len-raw) (-- len-template) ht)))])))
 
+;; directly construct comparision list
+(define (led-comp raw template len-raw len-template ht)
+  (let ([min-led (led raw template len-raw len-template ht)])
+    (cond
+      [(empty? raw) (mix-in ins template)]
+      [(empty? template) (mix-in trunc raw)]
+      [(equal? (first raw) (first template)) (cons (list (first raw) neutral (first template)) (led-comp (rest raw) (rest template) 
+                                                                                  (-- len-raw) (-- len-template) ht))]
+      [(equal? (truncate raw template len-raw len-template ht) min-led) (cons (list neutral trunc (first template)) (led-comp (rest raw) template
+                                                                                              (-- len-raw) len-template ht))]
+      [(equal? (insert raw template len-raw len-template ht) min-led) (cons (list neutral ins (first template)) (led-comp raw (rest template)
+                                                                                                            len-raw (-- len-template) ht))]
+      [(equal? (substitute raw template len-raw len-template ht) min-led) (cons (list (first raw) sub (first template)) (led-comp (rest raw) (rest template)
+                                                                                                                (-- len-raw) (-- len-template) ht))]                                                                
+      [else (cons testing (cons (first raw) (led-comp (rest raw) (rest template)
+                                                      (-- len-raw) (-- len-template) ht)))])))
+
+;; wrapper for strings
+(define (lev-comp raw template)
+  (led-comp (string->list raw) (string->list template)
+            (string-length raw) (string-length template)
+            (make-hash)))
+
 
 (define (lev-diff raw template)
   (list->string (cond-delim (led-diff (string->list raw) (string->list template)
@@ -169,4 +192,13 @@
         (lev-diff raw template) 
         (list->string (mix-in neutral (string->list template)))))
 
+;; run some tests
+(define my-data (lev-comp rec mwd))
+
+(define (pack-lev-comp data)
+  (map (λ(l) (list->string l)) data))
+
 (provide find-diff)
+(provide lev-comp)
+
+(pack-lev-comp my-data)

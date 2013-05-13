@@ -100,6 +100,7 @@
 ;(define (clean-all nested-hash)
  ; (foldr (λ(key ht) (hash-update ht key clean-punctuation)) nested-hash (hash-keys nested-hash))) 
 
+
 ;; apply a list of cleaning operations to the text
 (define (clean-all operations nested-hash)
   (cond

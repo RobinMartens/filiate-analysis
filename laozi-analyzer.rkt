@@ -87,9 +87,11 @@
 
 (define foo (find-diff (source "received" 1) (source "mawangdui-yi" 1)))
 
-(display (refactor-bulk (find-diff (source "received" 1) (source "mawangdui-yi" 1))))
+(define data (refactor-bulk (find-diff (source "received" 1) (source "mawangdui-yi" 1))))
 
+;; write it to file somehow
+;(display-lines-to-file data "moredata.txt")
 
-
+(lev-comp (source "received" 1) (source "mawangdui-yi" 1))
 
 
