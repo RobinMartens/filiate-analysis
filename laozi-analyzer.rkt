@@ -8,6 +8,8 @@
 
 ;; import custom code
 (require "levenshtein.rkt")
+(require "punctuation.rkt")
+(require "source.rkt")
 
 ;; some general tests on the equality of Chinese characters
 (check-expect (equal? "道可道非常道" "道可道非常道") #t)
@@ -19,19 +21,7 @@
 ;(check-expect (equal? "" "") #f)
  
  
-;; make a function to remove punctuation
-(define punctuation-string "。,;、")
-(define punctuation (foldr (λ(elm s) (set-add s elm)) (set) (string->list punctuation-string)))
 
-(define (rm-punc chars punct)
-  (cond
-    [(empty? chars) empty]
-    [else (if (set-member? punct (first chars))
-              (rm-punc (rest chars) punct)
-              (cons (first chars) (rm-punc (rest chars) punct)))]))
-
-(define (remove-punctuation s)
-  (list->string (rm-punc (string->list s) punctuation)))
 
 
 
@@ -61,5 +51,8 @@
 
 ;; write a procedure to display similarities and differences
 
-(diff-trivial (remove-punctuation received1) 
-      (remove-punctuation hsg1))
+;(diff-trivial (remove-punctuation received1) 
+ ;     (remove-punctuation hsg1))
+
+
+
