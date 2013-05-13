@@ -24,7 +24,55 @@
                                    (if (equal? (first a) (first b)) 0 1)))])
             (begin (hash-set! ht key cur-led)
                    cur-led))])))
-      
+    
+
+;; make a function that displays the differences
+;; (list char?) (list char?) -> (list char?)
+(define (adapt a b len-a len-b ht)
+  (cond [(empty? a) b]
+        [(empty? b) a]
+        [else 
+         (let ([delete (++ (led (rest a) b (-- len-a) len-b ht))]
+               [insert (++ (led a (rest b) len-a (-- len-b) ht))]
+               [substitute (+ (led (rest a) (rest b) (-- len-a) (-- len-b) ht)
+                              (if (equal? (first a) (first b)) 0 1))])
+           (cond
+             [(equal? delete (led a b len-a len-b ht)) (cons #\- (adapt a 
+                                                                        (rest b)
+                                                                        len-a
+                                                                        (-- len-b)
+                                                                        ht))]
+             [(equal? insert (led a b len-a len-b ht)) (cons #\+ (adapt (rest a) 
+                                                                         b
+                                                                         (-- len-a)
+                                                                         len-b
+                                                                         ht))]
+             [(equal? substitute 0) (cons (first a) (cons #\* (adapt 
+                                                                            (rest a) 
+                                                                            (rest b)
+                                                                            (-- len-a)
+                                                                            (-- len-b)
+                                                                            ht)))]
+             [(equal? substitute (led a b len-a len-b ht)) (cons #\' (cons (first a) (adapt 
+                                                                            (rest a) 
+                                                                            (rest b)
+                                                                            (-- len-a)
+                                                                            (-- len-b)
+                                                                            ht)))]))]))
+    
+(define (diff s1 s2)
+  (list->string (adapt (string->list s1) 
+                       (string->list s2) 
+                       (string-length s1) 
+                       (string-length s2) 
+                       (make-hash))))
+
+
+
+
+
+
+
 ;; string? string? -> integer
 (define (lev text-a text-b)
   (led (string->list text-a) 
@@ -50,8 +98,27 @@
 ;; substitute 1
 (check-expect (equal? (lev "jello" "hello") 1) #t)
 
+
+
+;; make a trivial implementation of diff first
+(define (adapt-trivial a b)
+  (cond
+    [(empty? a) b]
+    [(empty? b) a]
+    [else (if (equal? (first a) (first b))
+              (cons (first a) (adapt-trivial (rest a) (rest b)))
+              (cons #\X (adapt-trivial (rest a) (rest b))))]))
+
+(define (diff-trivial a b)
+  (list->string (adapt-trivial (string->list a) (string->list b))))
+
+
 ;; run tests
 (test)
 
 ;; export lev
 (provide lev)
+
+;; export diff
+(provide diff)
+(provide diff-trivial)
