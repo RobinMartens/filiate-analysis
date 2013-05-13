@@ -167,7 +167,7 @@
 ;(show-diff "a" "b")
 ;(show-diff "abc" "efg")
 ;(show-diff "abc" "adc")
-(show-diff "abcde" "abde")
+;(show-diff "abcde" "abde")
 
 
 
@@ -179,3 +179,6 @@
 
 ;; do a real-world example
 ;(show-diff rec mwd)
+
+(show-diff rec mwd)
+

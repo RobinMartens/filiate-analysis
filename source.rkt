@@ -91,17 +91,29 @@
 
 
  ;; clean the text
-(define (clean cur-hash)
+(define (clean-punctuation cur-hash)
   (foldr (λ(key ht) (hash-update ht key remove-punctuation)) cur-hash (hash-keys cur-hash)))
 
-(define (clean-all nested-hash)
-  (foldr (λ(key ht) (hash-update ht key clean)) nested-hash (hash-keys nested-hash))) 
+(define (clean-square cur-hash)
+  (foldr (λ(key ht) (hash-update ht key sub-square)) cur-hash (hash-keys cur-hash)))
 
-(define DDJ (clean-all all-raw))
+;(define (clean-all nested-hash)
+ ; (foldr (λ(key ht) (hash-update ht key clean-punctuation)) nested-hash (hash-keys nested-hash))) 
+
+;; apply a list of cleaning operations to the text
+(define (clean-all operations nested-hash)
+  (cond
+    [(empty? operations) nested-hash]
+    [else (foldr (λ(key ht) (hash-update ht key (first operations))) (clean-all (rest operations) nested-hash) (hash-keys nested-hash))]))
+
+
+(define DDJ (clean-all (list clean-punctuation clean-square) all-raw))
 
 (define (source version chapter)
   (hash-ref (hash-ref DDJ version) chapter))
 
 (provide DDJ)
 (provide source)
+
+;;(clean-square received-hash)
   
