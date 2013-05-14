@@ -77,4 +77,9 @@
 (define-struct char-diff 
   (template other operation status))
 
-(lev-compare (source "received" 1) (source "xihan" 1))
+(lev-compare (source "received" 42) (source "xihan" 42))
+
+;(lev-compare (source "mawangdui-yi" 5) (source "xihan" 5))
+
+;;   "我 我"
+;;  "亦%而"
