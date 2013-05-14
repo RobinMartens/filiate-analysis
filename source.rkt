@@ -80,7 +80,20 @@
         48 ""
         56 ""))
 
+(define xihan-hash
+  (hash  1 "道可道,非恒道殹(也);名可命,非恒名也。無名,萬物之始也;有名,萬物之母也。【一二四】故恒無欲以觀其眇(妙),恒有欲以觀其所僥(徼)。此兩者同出,異名同謂。玄之有(又)【一二五】玄之,眾眇(妙)之門。【一二六】"
+        5 "天地不仁,以萬物為芻狗;聖人不仁,以百姓為芻狗。天地之閒,其猶橐籥【一三六】虖(乎)?虛而不屈,動而揄(愈)出。多聞數窮,不若守於中。【一三七】"
+        11 "卅輻同一轂,當其無,有車之用也;挻殖(埴)器,當其無,有殖(埴)器之用也;鑿戶牖,【一四八】當其無,有室之用也。故有之以為利,無之以為用。【一四九】"
+        16 "古之為士者,微眇(妙)玄達,深不可識。夫唯不可識,故強為之頌(容)曰:就(蹴)虖(乎)其如【一五九】冬涉水,猶虖(乎)其如畏四鄰,嚴(儼)虖(乎)其如客,渙虖(乎)其如冰之澤(釋),(敦)虖(乎)其如樸,沌【一六〇】虖(乎)其如濁,廣(曠)虖(乎)其如浴(谷)。孰能濁以靜之?徐清。孰能安以動之?徐生。抱此道【一六一】者不欲盈,夫唯不盈,是以能敝不成。【一六二】"
+        20 "絕學無憂。唯與何(訶),其相去幾何?美與惡,其相去何若?人之所畏,不可以不【一七一】不畏人。芒(荒)虖(乎),未央哉!眾人巸巸(熙熙),若鄉(享)大(太)牢而萅(春)登臺。我𥙃(泊)旖(兮)未佻(兆),若嬰兒之未【一七二】䀭(孩)。絫旖(兮),台(似)無所歸。眾人皆有餘,我蜀(獨)若遺(匱)。我愚人之心也,屯屯(沌沌)虖(乎)!猷(俗)人昭昭,我【一七三】蜀(獨)若昏;猷(俗)人計計(察察),我獨昏昏。沒(忽)旖(兮),其如晦;芒(恍)旖(兮),其無所止。眾人皆有以,而我獨【一七四】抏(頑)以鄙。我欲獨異於人,而唯貴食母。【一七五】"
+        25 "炊(企)者不立,自見者不明,自視(是)者不章(彰),自發(伐)者無功,矜者不長。其在道也,斜(餘)【一八五】食叕(贅)行,物或惡之,故有欲者弗居。【一八六】"
+        38 "上德不德,是以有德。下德不失德,是以無德。上德無為而無以為,下德[為]【一】之而無以為。上仁為之而無以為,上義為之而有以為。上禮為之而莫之【二】應,則攘臂而乃(扔)之。故失道而後德,失德而後仁,失仁而後義,失義而後禮。【三】夫禮,忠信之淺而亂之首也。前識者,道之華而愚之首也。是以大丈夫居【四】其厚,不居其薄,居其實,不居其華。故去被(彼)取此。【五】"
+        42 "道生一,一生二,二生三,三生萬物。萬物負陰抱陽,中(沖)氣以為和。人之所惡,唯孤、寡、不穀,【一六】而王公以自名也。是故物或損而益,或益而損。人之所教,亦我而教人。故【一七】強粱(梁)者不得死,吾將以為學(教)父。【一八】"
+        48 "為學者日益,為道者日損。[損]之有(又)損之,至於無[為。無為無不為。取天下者恒以]【二九】無事,及其有事,有(又)不足以取天下。【三〇】"
+        56 "智(知)者弗言,言者弗智(知)。塞其脫(兌),閉其門,和其光,同其畛(塵),挫其兌(銳),解其紛,是謂玄【五一】同。故不可得而親,亦不可得而疏;不可得而利,亦不可得而害;不可得而【五二】貴,亦不可得而賤。故為天下貴。【五三】"))
 
+
+;; remove everything in between 【】 or in between (), remove [, ]
 
 (define all-raw
   (hash "received" received-hash
@@ -97,8 +110,8 @@
 (define (clean-square cur-hash)
   (foldr (λ(key ht) (hash-update ht key sub-square)) cur-hash (hash-keys cur-hash)))
 
-;(define (clean-all nested-hash)
- ; (foldr (λ(key ht) (hash-update ht key clean-punctuation)) nested-hash (hash-keys nested-hash))) 
+(define (update cur-hash proc)
+  (foldr (λ(key ht) (hash-update ht key proc)) cur-hash (hash-keys cur-hash)))
 
 
 ;; apply a list of cleaning operations to the text
@@ -107,6 +120,10 @@
     [(empty? operations) nested-hash]
     [else (foldr (λ(key ht) (hash-update ht key (first operations))) (clean-all (rest operations) nested-hash) (hash-keys nested-hash))]))
 
+(define update-operations
+  (list clean-punctuation
+        clean-square
+        (λ(ht) (update ht (λ(v) (regexp-match #rx"【.】" v))))))
 
 (define DDJ (clean-all (list clean-punctuation clean-square) all-raw))
 
@@ -117,4 +134,35 @@
 (provide source)
 
 ;;(clean-square received-hash)
-  
+
+;; use Regex for cleaning
+ 
+(define teststring "橐籥【一三六】虖(乎)")
+(define test2 "橐籥【一三六】虖(橐籥【一三六】虖(橐籥【一三六】虖(")
+
+(define chinese-brackets (regexp "【(.+)】"))
+(define parentheses (regexp "\\((.+)\\)"))
+;(define punctuation (regexp "。|,|;|、"))
+(define punctuation (regexp "。"))
+
+;(regexp-match rex teststring)
+;(regexp-replace chinese-brackets teststring "")
+
+#|(regexp-replace parentheses 
+                (regexp-replace chinese-brackets (hash-ref xihan-hash 1) "")
+                "")|#
+
+(define (clean s reg-pairs)
+  (cond
+    [(empty? reg-pairs) s]
+    [else (clean (regexp-replace* (regexp (car (first reg-pairs))) s (cdr (first reg-pairs)))
+                 (rest reg-pairs))]))
+
+(define regular-pairs
+  (list (cons "【(.+)】" "")
+        (cons "\\((.+)\\)" "")
+        (cons "。|,|;|、" "")))
+
+(clean (hash-ref received-hash 1) regular-pairs)
+
+;(。|,|;|、)

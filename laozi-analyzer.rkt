@@ -72,9 +72,7 @@
 |#
 
 
-;; introduce the char-diff type
-(define-struct char-diff 
-  (template other operation status))
+
 
 
 
