@@ -103,54 +103,16 @@
         "wangbi" wang-bi-hash))
 
 
- ;; clean the text
-(define (clean-punctuation cur-hash)
-  (foldr (λ(key ht) (hash-update ht key remove-punctuation)) cur-hash (hash-keys cur-hash)))
 
-(define (clean-square cur-hash)
-  (foldr (λ(key ht) (hash-update ht key sub-square)) cur-hash (hash-keys cur-hash)))
+ ;; clean the text 
 
 (define (update cur-hash proc)
   (foldr (λ(key ht) (hash-update ht key proc)) cur-hash (hash-keys cur-hash)))
 
-
-;; apply a list of cleaning operations to the text
 (define (clean-all operations nested-hash)
   (cond
     [(empty? operations) nested-hash]
     [else (foldr (λ(key ht) (hash-update ht key (first operations))) (clean-all (rest operations) nested-hash) (hash-keys nested-hash))]))
-
-(define update-operations
-  (list clean-punctuation
-        clean-square
-        (λ(ht) (update ht (λ(v) (regexp-match #rx"【.】" v))))))
-
-(define DDJ (clean-all (list clean-punctuation clean-square) all-raw))
-
-(define (source version chapter)
-  (hash-ref (hash-ref DDJ version) chapter))
-
-(provide DDJ)
-(provide source)
-
-;;(clean-square received-hash)
-
-;; use Regex for cleaning
- 
-(define teststring "橐籥【一三六】虖(乎)")
-(define test2 "橐籥【一三六】虖(橐籥【一三六】虖(橐籥【一三六】虖(")
-
-(define chinese-brackets (regexp "【(.+)】"))
-(define parentheses (regexp "\\((.+)\\)"))
-;(define punctuation (regexp "。|,|;|、"))
-(define punctuation (regexp "。"))
-
-;(regexp-match rex teststring)
-;(regexp-replace chinese-brackets teststring "")
-
-#|(regexp-replace parentheses 
-                (regexp-replace chinese-brackets (hash-ref xihan-hash 1) "")
-                "")|#
 
 (define (clean s reg-pairs)
   (cond
@@ -161,8 +123,27 @@
 (define regular-pairs
   (list (cons "【(.+)】" "")
         (cons "\\((.+)\\)" "")
-        (cons "。|,|;|、" "")))
+        (cons "!|\\?|∠|○|。|,|;|、" "")
+        (cons "[10]" "")))
 
-(clean (hash-ref received-hash 1) regular-pairs)
+(define update-operations
+  (list (λ(ht) (update ht (λ(v) (clean v regular-pairs))))))
 
-;(。|,|;|、)
+
+
+;; make something to export
+
+(define DDJ (clean-all update-operations all-raw))
+
+(define (source version chapter)
+  (hash-ref (hash-ref DDJ version) chapter))
+
+
+
+;; export it
+
+(provide DDJ)
+(provide source)
+
+
+
