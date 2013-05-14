@@ -61,6 +61,7 @@
 
 
 ;; make a list of all parallel passages
+
 #|
 (define the-chapters (list 1 5 11 16 20 25 38 42 48 56))
 
@@ -72,9 +73,8 @@
 |#
 
 
+;; introduce the char-diff type
+(define-struct char-diff 
+  (template other operation status))
 
-
-
-
-
-
+(lev-compare (source "received" 1) (source "xihan" 1))

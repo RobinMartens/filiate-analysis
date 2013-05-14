@@ -100,7 +100,8 @@
         "mawangdui-jia" mawangdui-jia-hash
         "mawangdui-yi" mawangdui-yi-hash
         "heshanggong" he-shang-gong-hash
-        "wangbi" wang-bi-hash))
+        "wangbi" wang-bi-hash
+        "xihan" xihan-hash))
 
 
 
@@ -121,8 +122,8 @@
                  (rest reg-pairs))]))
 
 (define regular-pairs
-  (list (cons "【(.+)】" "")
-        (cons "\\((.+)\\)" "")
+  (list (cons "【(...)】" "")
+        (cons "\\((.)\\)" "")
         (cons "!|\\?|∠|○|。|,|;|、" "")
         (cons "[10]" "")))
 
