@@ -138,9 +138,6 @@
 
 
 ;; need a new mix-in type
-
-
-
 (define (led-struct raw template len-raw len-template ht chard)
   (let ([min-led (led raw template len-raw len-template ht)])
     (cond
