@@ -5,9 +5,9 @@
 (require racket/set)
 
 ;; import custom code
-(require "src/levenshtein.rkt")
-(require "src/punctuation.rkt")
-(require "src/source.rkt")
+(require "levenshtein.rkt")
+(require "punctuation.rkt")
+(require "source.rkt")
 
 ;; trivially compare two texts
 (define (compare chapter text1 text2)
@@ -89,6 +89,6 @@
 
 ;; write everything to file
 (define save-all-cc (λ() (map (λ(chapter) (display-to-file (matrix->csv (cc chapter))
-                                                         (string-append "../work/" "cc_" (number->string chapter) ".csv")))
+                                                         (string-append "../results/" "cc_" (number->string chapter) ".csv")))
                               the-chapters)))
 
