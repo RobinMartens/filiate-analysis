@@ -27,6 +27,13 @@
   (foldr (λ(n base) (cons (compare n text1 text2) base)) empty chapters))
 
 
+;; make critical versions of all texts; lev compare everything to everything
+(define (scribe-lev-comp text1 text2)
+  (foldr (λ(cur all) (string-append cur "\n" all)) "" (lev-compare text1 text2)))
+
+
+
+
 ;(define stuff (map (λ(n) (lev-compare (source "received" n)
  ;                       (source "mawangdui-yi" n))) the-chapters))
 
@@ -37,7 +44,7 @@
 (define-struct char-diff 
   (template other operation status))
 
-(lev-compare (source "received" 56) (source "xihan" 56))
+(display (lev-compare (source "received" 56) (source "xihan" 56)))
 |#
 ;(lev-compare (source "mawangdui-yi" 5) (source "xihan" 5))
 
