@@ -21,7 +21,7 @@
 ;; make a list of all parallel passages
 
 
-(define the-chapters (list 1 5 11 16 20 25 38 42 48 56))
+(define the-chapters (list 1 5 11 16 20 #|25|# 38 42 48 56))
 
 (define (compare-all chapters text1 text2)
   (foldr (λ(n base) (cons (compare n text1 text2) base)) empty chapters))
@@ -31,7 +31,18 @@
 (define (scribe-lev-comp text1 text2)
   (foldr (λ(cur all) (string-append cur "\n" all)) "" (lev-compare text1 text2)))
 
+(define (save-lev-comp source1 source2 chapters)
+  (map (λ(cur-chapter) (display-to-file (scribe-lev-comp (source source1 cur-chapter) (source source2 cur-chapter))
+                                      (string-append "work/comp/" source1 "_" source2 "_" (number->string cur-chapter) ".txt")))
+       chapters))
+                
 
+;; now compare everything
+(define save-critical
+  (λ() (begin
+    (save-lev-comp "received" "mawangdui-yi" the-chapters)
+    (save-lev-comp "received" "xihan" the-chapters)
+    (save-lev-comp "mawangdui-yi" "xihan" the-chapters))))
 
 
 ;(define stuff (map (λ(n) (lev-compare (source "received" n)
@@ -96,6 +107,6 @@
 
 ;; write everything to file
 (define save-all-cc (λ() (map (λ(chapter) (display-to-file (matrix->csv (cc chapter))
-                                                         (string-append "../work/" "cc_" (number->string chapter) ".csv")))
+                                                         (string-append "work/lev" "cc_" (number->string chapter) ".csv")))
                               the-chapters)))
 
